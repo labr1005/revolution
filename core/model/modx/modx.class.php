@@ -2735,6 +2735,40 @@ class modX extends xPDO {
         }
         $this->invokeEvent('OnWebPageComplete');
     }
+
+    /** @var \Psr\Log\LoggerInterface */
+    private $logger = null;
+
+    /**
+     * @param \Psr\Log\LoggerInterface $logger
+     */
+    public function injectLogger($logger) {
+        $this->logger = $logger;
+    }
+
+    public function log($level, $msg, $target = '', $def = '', $file = '', $line = '') {
+        if ($this->logger === null) {
+            parent::log($level, $msg, $target, $def, $file, $line);
+        } else {
+            switch ($level) {
+                case static::LOG_LEVEL_FATAL:
+                    $this->logger->emergency($msg);
+                    break;
+                case static::LOG_LEVEL_ERROR:
+                    $this->logger->error($msg);
+                    break;
+                case static::LOG_LEVEL_WARN:
+                    $this->logger->warning($msg);
+                    break;
+                case static::LOG_LEVEL_INFO:
+                    $this->logger->info($msg);
+                    break;
+                case static::LOG_LEVEL_DEBUG:
+                    $this->logger->debug($msg);
+                    break;
+            }
+        }
+    }
 }
 
 /**
